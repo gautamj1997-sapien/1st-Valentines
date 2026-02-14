@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lachu's Valentine's Game 💖</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/framer-motion@11/dist/framer-motion.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-100 via-pink-100 to-rose-200 p-6">
+  <div id="root"></div>
+  
+  <script>
+    const { motion, AnimatePresence } = window.FramerMotion;
+    
+    const prompts = [
+      { question: "Lachu walks into the room… what's your move?", 
+        options: [
+          { text: "Smile like I've been waiting", result: "Good. Because I have been waiting. Don't make it obvious though 😌" },
+          { text: "Act normal (fail immediately)", result: "That was the most obvious 'act normal' I've ever seen. Cute attempt." },
+          { text: "Go say hi", result: "Straight to me? Hmm… confident. I like that." }
+        ]
+      },
+      { question: "Our ideal plan together is…", 
+        options: [
+          { text: "Chai, talking about everything and nothing", result: "Perfect. Time slows down when it's just us and chai ☕" },
+          { text: "A random walk with no destination", result: "Getting lost with you sounds like a very good plan." },
+          { text: "Laughing at absolutely nothing", result: "That's already our specialty, isn't it?" }
+        ]
+      },
+      { question: "If Lachu steals your food?", 
+        options: [
+          { text: "Let her take it", result: "Correct answer. Sharing is caring… especially with me." },
+          { text: "Pretend to protest", result: "You can complain, but we both know you're giving it anyway." },
+          { text: "Order more for both", result: "Oh? Taking care of me now? This is getting dangerously sweet." }
+        ]
+      }
+    ];
+
+    let state = { step: 0, result: null, started: false };
+
+    function render() {
+      const root = document.getElementById('root');
+      root.innerHTML = `
+        <AnimatePresence mode="wait">
+          ${!state.started ? `
+            <motion.div 
+              key="start" 
+              initial={{ opacity: 0, scale: 0.9 }} 
+              animate={{ opacity: 1, scale: 1 }} 
+              exit={{ opacity: 0 }}
+              style="display: flex; flex-direction: column; align-items: center; padding: 2rem; background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-width: 400px; width: 100%;">
+              <h1 class="text-3xl font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent mb-6">Hi Lachu 💌</h1>
+              <p class="text-base text-gray-600 mb-8 text-center">This is a tiny game. Takes 60 seconds.<br>Side effects may include smiling.</p>
+              <button onclick="startGame()" 
+                      class="bg-rose-500 hover:bg-rose-600 text-white px-8 py-3 rounded-2xl text-lg font-medium transition-all duration-200 hover:scale-105">
+                Start Our "Date"
+              </button>
+            </motion.div>
+          ` : ''}
+          
+          ${state.started && state.step !== 'end' ? `
+            <motion.div
+              key="${state.step}"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              style="display: flex; flex-direction: column; align-items: center; padding: 2rem; background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-width: 400px; width: 100%;">
+              <h2 class="text-2xl font-semibold mb-8 text-gray-800">${prompts[state.step].question}</h2>
+              
+              ${!state.result ? `
+                <div class="space-y-4 w-full">
+                  ${prompts[state.step].options.map((opt, i) => `
+                    <button onclick="selectChoice(${i})"
+                            class="w-full p-4 border border-rose-200 hover:border-rose-400 hover:bg-rose-50 rounded-2xl text-left transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]">
+                      ${opt.text}
+                    </button>
+                  `).join('')}
+                </div>
+              ` : `
+                <div class="space-y-6 w-full text-center">
+                  <p class="text-xl p-6 bg-rose-50 rounded-2xl">${state.result}</p>
+                  <button onclick="nextStep()" 
+                          class="w-full bg-rose-500 hover:bg-rose-600 text-white py-4 rounded-2xl text-lg font-medium transition-all duration-200 hover:scale-105">
+                    Continue →
+                  </button>
+                </div>
+              `}
+            </motion.div>
+          ` : ''}
+          
+          ${state.step === 'end' ? `
+            <motion.div
+              key="end"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              style="display: flex; flex-direction: column; align-items: center; padding: 2rem; background: white; border-radius: 1rem; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-width: 400px; width: 100%;">
+              <h2 class="text-3xl font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text mb-6">So Lachu… ❤️</h2>
+              <p class="text-lg text-gray-600 mb-8 text-center">
+                That didn't feel like a game.<br>
+                It felt like spending a little time with you.
+              </p>
+              <button onclick="restartGame()" 
+                      class="border border-rose-200 hover:border-rose-400 text-rose-600 px-8 py-3 rounded-2xl font-medium transition-all duration-200 hover:bg-rose-50">
+                Play Again?
+              </button>
+            </motion.div>
+          ` : ''}
+        </AnimatePresence>
+      `;
+    }
+
+    function startGame() {
+      state.started = true;
+      render();
+    }
+
+    function selectChoice(index) {
+      state.result = prompts[state.step].options[index].result;
+      playHeartSound();
+      render();
+    }
+
+    function nextStep() {
+      state.result = null;
+      if (state.step + 1 < prompts.length) {
+        state.step++;
+      } else {
+        state.step = 'end';
+      }
+      render();
+    }
+
+    function restartGame() {
+      state = { step: 0, result: null, started: false };
+      render();
+    }
+
+    function playHeartSound() {
+      // Simple heart ding
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+      oscillator.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.1);
+      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + 0.1);
+    }
+
+    render();
+  </script>
+</body>
+</html>
