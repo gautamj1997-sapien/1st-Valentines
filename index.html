@@ -3,165 +3,135 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>For Lachu 💖</title>
+  <title>Lachu & Me 💖</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
-      background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      overflow: hidden; /* Keeps hearts from making the page scroll */
+      background: linear-gradient(135deg, #fb7185 0%, #be123c 100%);
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      overflow: hidden;
+      color: #4c0519;
     }
-
     .game-card {
-      background: rgba(255, 255, 255, 0.9);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(10px);
-      border-radius: 2.5rem;
-      box-shadow: 0 25px 50px -12px rgba(159, 18, 57, 0.15);
-      border: 2px solid #fecdd3;
+      border-radius: 2rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
-
     .btn-romantic {
-      background: linear-gradient(to right, #e11d48, #be123c);
+      background: linear-gradient(to right, #e11d48, #9f1239);
       color: white;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      transition: all 0.3s ease;
     }
-
-    .btn-romantic:hover {
-      transform: scale(1.03) translateY(-2px);
-      box-shadow: 0 10px 20px -5px rgba(190, 18, 60, 0.4);
-    }
-
+    .btn-romantic:hover { transform: scale(1.05); }
     .choice-button {
-      background: white;
-      border: 2px solid #fda4af;
-      color: #9f1239;
-      width: 100%;
-      padding: 18px;
-      border-radius: 1.25rem;
-      font-weight: 600;
-      margin-bottom: 12px;
-      transition: all 0.2s;
-      text-align: center;
-    }
-
-    .choice-button:hover {
       background: #fff1f2;
-      border-color: #e11d48;
-      transform: translateX(5px);
+      border: 2px solid #fda4af;
+      width: 100%;
+      padding: 16px;
+      border-radius: 1rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      transition: all 0.2s;
     }
-
-    /* Floating Heart Animation */
-    .heart {
-      position: fixed;
-      top: -10%;
-      font-size: 24px;
-      animation: heartFloat 7s linear infinite;
-      opacity: 0.6;
-      user-select: none;
-    }
-
-    @keyframes heartFloat {
-      0% { transform: translateY(0) rotate(0deg); opacity: 0.8; }
-      100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
-    }
-
-    .floating { animation: float 3s ease-in-out infinite; }
-    @keyframes float {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-15px); }
-    }
+    .choice-button:hover { background: #fecdd3; transform: translateX(5px); }
+    .heart { position: fixed; top: -10%; animation: fall 6s linear infinite; opacity: 0.7; z-index: 0; }
+    @keyframes fall { to { transform: translateY(110vh) rotate(360deg); } }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6">
+<body class="min-h-screen flex items-center justify-center p-4">
 
-  <div class="heart" style="left: 10%; animation-delay: 0s;">💖</div>
-  <div class="heart" style="left: 30%; animation-delay: 2s;">🌹</div>
-  <div class="heart" style="left: 55%; animation-delay: 4s;">✨</div>
-  <div class="heart" style="left: 80%; animation-delay: 1s;">💖</div>
-  <div class="heart" style="left: 90%; animation-delay: 5s;">🌸</div>
+  <div id="hearts-container"></div>
 
-  <div id="game-container" class="max-w-md w-full relative z-10">
+  <div id="app" class="max-w-md w-full relative z-10">
     </div>
 
   <script>
-    const gameData = [
-      {
-        question: "If we were in a movie and I saw you across a crowded room... what’s the vibe? ✨",
-        options: ["Slow-motion eye contact (very dramatic)", "I’d trip over my own feet looking at you", "I'd walk straight up and say something smooth"],
-        replies: ["I can already hear the romantic music playing. 🎻", "Be careful! I'll be there to catch you though. 😉", "Ooh, a risk-taker! I like that energy."]
-      },
-      {
-        question: "If we could run away together for 24 hours, no phones allowed, where are we going? ✈️",
-        options: ["A cozy cabin in the snowy mountains", "A secret beach with glowing water", "A busy city to get lost in the lights"],
-        replies: ["Just us, a fireplace, and some cocoa? Perfect. ❄️", "The water would look pretty, but you'd look prettier. 🌊", "As long as I'm holding your hand, we won't get lost. 🌃"]
-      },
-      {
-        question: "Be honest... if I leaned in to tell you a secret right now, what would you do? 🤫",
-        options: ["Lean in closer to hear every word", "Give me a shy smile and blush", "Stop me and tell me YOUR secret first"],
-        replies: ["I have a lot of secrets... most of them are about you. ❤️", "Your blush is my favorite color, Lachu. 😊", "Oh? A secret battle? You go first then! 🔥"]
-      }
+    const questionPool = [
+      { q: "Cinema-la paakura madhiri nammala paatha enna pannuva? ✨", o: ["Slow motion eye contact", "Kandukaadha madhiri poven", "Straight-ah vandhu pesuven"], r: ["Aha, bgm ellam kekudhey! 🎻", "Over-ah scene podadha, enakku theriyum! 😉", "Bold move! Adhaan un style-ah?"] },
+      { q: "Naan un lunch-a thiruduna enna pannuva? 🍕", o: ["Full-ah nee saapdu", "Sanda poduven", "Inonnu order pannuvom"], r: ["Enna oru nalla manasu! Lachu happy. 😋", "Yappa! Periya fight-eh nadakkum pola!", "Idhu dhaan clever move. Double party!"] },
+      { q: "Late-ah reply panna unakku enna punishment? ⏳", o: ["Treat vaangi tharanum", "1 hour pesakoodadhu", "Extra-va konjam kalla sirippu"], r: ["Starbucks treat-a? Done! ☕", "Idhu romba kashdam boss!", "Adhu epdiyo thandhuduva, theriyum! 😌"] },
+      { q: "En dress nalla irukka illa naan nalla irukkena? 😎", o: ["Dress dhaan", "Nee dhaan epovum", "Renduமே mokka"], r: ["Savage! Dress kooda unna vida azhaga? 😂", "Correct answer. 100 marks!", "Aiyo! Enna ivlo bold-ah pesura? 👊"] },
+      { q: "Namma first date-ku enga polam? 🌊", o: ["Beach sunset", "Chai shop", "Long drive"], r: ["Romantic soul-ah nee? Super. 🌅", "Chai and us... best combo ever. ☕", "Road trip ready-ah? Polaam! 🚗"] },
+      { q: "Naan kovama irundha eppadi cool pannuva? 😡", o: ["Chocolate tharuven", "Pattu paaduven", "Summa oru smile"], r: ["Dairy Milk Silk-ah? Appo ok! 🍫", "Kadhai keka ready, paadu! 🎤", "Un sirippu paatha kovam poyidum. ❤️"] },
+      { q: "Enakku oru nickname vainu paapom... 🐥", o: ["Rowdy Baby", "Chella Kutty", "Laddu"], r: ["Rowdy-ah? Naana? Pathu pesu! 😈", "Idhu konjam over sweet-ah irukke!", "Laddu-va? Naan sweet-nu unakku therinjiducha?"] },
+      { q: "Night full-ah pesittu irundha thookam varuma? 🌙", o: ["Un kooda pesuna varadhu", "10 PM-ku thookidhuven", "Coffee kudichittu pesuven"], r: ["Ippo dhaan romantic-ah pesura! 😍", "Thoongu thoongu, nalla thoongu!", "Caffeine plus un pechu... vera level!"] },
+      { q: "Vera yaraachum kooda naan pesuna jealous aaguma? 🤨", o: ["Kandippa aagum", "No way, I trust you", "Appo naan vera ponnu kooda pesuven"], r: ["Possessive mode on-ah? Cute. 💖", "Nalla confidence! Adhu dhaan venum.", "Adadi! En koodaye competition-ah? 🔥"] },
+      { q: "Dream-la naan vandha enna pannuva? 😴", o: ["Hi solluven", "Chase pannuven", "Kanavu-nu nenaichu feel pannuven"], r: ["Real-la vara matten-nu nenaipiyo? 😂", "Naan dhaan fast-ah oduvene!", "Feel panna dhaan seiyum... pavam."] },
+      { q: "Naan mokkaya samachalum saapduviya? 🍳", o: ["Kandippa saapduven", "Waste bin-la pottuduven", "Nee samachadhu-nu poi solluven"], r: ["Hospital-ku ready-ah iru! 🚑", "Romba honesty odambu-ku aagathu!", "Sweet liar! But I like it. 😉"] },
+      { q: "Moon-ku pona yar kooda pova? 🚀", o: ["Un kooda dhaan", "Thaniya poven", "Alien kooda"], r: ["Oxygen iruko illayo, namma sandoshama irupom! 🌕", "Selfish! But enjoy the view.", "Alien koodava? Enna vida adhu azhaga? 👽"] },
+      { q: "En sirippu eppadi irukku? 😁", o: ["Vera level azhagu", "Danger zones", "Just okay"], r: ["Daily paakanum-nu thonumey! ✨", "Unna arrest panna sollanum! 🚔", "Just okay-va? Next time sirippa maathuren!"] },
+      { q: "If I'm a superhero, en power enna? 🦸‍♀️", o: ["Heart stealer", "Mind reader", "Always hungry"], r: ["Already thiruditiye! ❤️", "Appo un mind-la irukuradhu enakku theriyuma?", "Idhu 100% correct! Pizza vaangi kudu! 🍕"] },
+      { q: "Mazhai-la nananjittu irukum podhu... 🌧️", o: ["Kuda (umbrella) tharuven", "Koodave nanaiyuven", "Oru photo eduppen"], r: ["Care-ing hero! ⛱️", "Romantic rain dance-ah? Polama? 💃", "Enna model nenaichiya? Photo focus pannu!"] },
+      { q: "10 varusham kazhichu namma enga irupom? 🏠", o: ["Kalyanam panni set aagiduvom", "Innum sanda pottuttu irupom", "World tour-la"], r: ["Nalla plan! Enakku ok. 💍", "Adhu dhaan namma specialty! 🥊", "Passport ready panni vai! 🌍"] },
+      { q: "Enna pathi unakku therinja secret enna? 🤫", o: ["Nee oru paavam", "Nee periya vaayadi", "Unakku enna romba pudikum"], r: ["Appavi-nu kandupidichitiya? 😂", "Vaayadi-ya? Ippo dhaan start pannirkken!", "Idhu secret-ah? Idhu dhaan fact-u! ❤️"] },
+      { q: "Namma scene chai shop-la eppadi irukum? ☕", o: ["Chai and bonding", "Full-ah sanda", "Amaithiya moon-a paapom"], r: ["Simplest and best date ever. ✨", "Shop-kaarar bayandhu oodiduvaru!", "En moon-a illa vaanathu moon-ah? 😉"] },
+      { q: "Enna thavira unakku vera yarukku time tharuva? 📱", o: ["Laptop/Games", "Amma-ku", "Yarukume illa"], r: ["Game-ah? Ippo dhaan unna savage-ah kavanikuren! 🎮", "Good boy! Respect. 🙌", "Full focus en mela dhaan... I like it!"] },
+      { q: "Naan unna pick panna vandha... 🛵", o: ["Back seat-la silent-ah varuven", "Drive panna keduppen", "Nadandhey polam-nu solluven"], r: ["Safety first-nu solriya? 😂", "En mela nambikai illaiya? 🏍️", "Walking date-ah? So romantic! 🚶‍♂️"] }
     ];
 
-    let currentStep = 0;
-    let showingResult = false;
-    let selectedReply = "";
-    let gameStarted = false;
+    let state = { step: 0, questions: [], results: [], started: false, currentResult: null };
+
+    // This selects 5 random questions
+    function setupGame() {
+      let shuffled = [...questionPool].sort(() => 0.5 - Math.random());
+      state.questions = shuffled.slice(0, 5);
+      state.step = 0;
+      state.started = false;
+      state.currentResult = null;
+    }
 
     function render() {
-      const container = document.getElementById('game-container');
+      const app = document.getElementById('app');
       
-      if (!gameStarted) {
-        container.innerHTML = `
+      if (!state.started) {
+        app.innerHTML = `
           <div class="game-card p-10 text-center">
-            <h1 class="text-4xl font-extrabold text-rose-600 mb-4 floating">Hi Lachu! 💌</h1>
-            <p class="text-gray-600 mb-10 text-lg leading-relaxed">I made a tiny game just for you.<br><b>Warning:</b> Might cause blushing.</p>
-            <button onclick="startGame()" class="btn-romantic w-full py-5 rounded-2xl text-xl font-bold shadow-xl">
-              Start Our "Date" ✨
+            <h1 class="text-4xl font-black text-rose-600 mb-2">Hi Lachu! 💌</h1>
+            <p class="text-gray-500 mb-8 italic">Ready for some fun questions?</p>
+            <button onclick="startGame()" class="btn-romantic w-full py-5 rounded-2xl text-xl font-bold shadow-lg">
+              Start Game ✨
             </button>
           </div>
         `;
         return;
       }
 
-      if (currentStep >= gameData.length) {
-        container.innerHTML = `
+      if (state.step >= 5) {
+        app.innerHTML = `
           <div class="game-card p-12 text-center">
-            <h2 class="text-3xl font-bold text-rose-600 mb-6">So Lachu... ❤️</h2>
-            <p class="text-xl text-gray-700 mb-10 italic leading-relaxed">"That didn't feel like a game.<br>It felt like spending time with you."</p>
-            <div class="text-7xl mb-10 floating">💖</div>
-            <button onclick="restartGame()" class="text-rose-500 font-bold hover:text-rose-700 transition-colors">
-              Play Again? 💕
-            </button>
+            <h2 class="text-3xl font-bold text-rose-600 mb-4">Happy Valentine's! ❤️</h2>
+            <p class="text-lg text-gray-700 mb-8">Un kooda spend panna time epovume special dhaan Lachu.</p>
+            <div class="text-7xl mb-8">💖</div>
+            <button onclick="reset()" class="text-rose-500 font-bold hover:underline">Play Again? 💕</button>
           </div>
         `;
         return;
       }
 
-      const data = gameData[currentStep];
-      
-      if (showingResult) {
-        container.innerHTML = `
+      const currentQ = state.questions[state.step];
+
+      if (state.currentResult) {
+        app.innerHTML = `
           <div class="game-card p-10 text-center">
-            <div class="bg-rose-50 border-2 border-rose-100 p-8 rounded-3xl mb-8">
-              <p class="text-2xl text-rose-900 font-semibold leading-snug">"${selectedReply}"</p>
+            <div class="bg-rose-100 p-8 rounded-3xl mb-8">
+              <p class="text-2xl text-rose-900 font-bold italic">"${state.currentResult}"</p>
             </div>
-            <button onclick="nextQuestion()" class="btn-romantic w-full py-5 rounded-2xl text-xl font-bold shadow-xl">
-              Continue →
+            <button onclick="next()" class="btn-romantic w-full py-5 rounded-2xl text-xl font-bold">
+              Next Question →
             </button>
           </div>
         `;
       } else {
-        container.innerHTML = `
-          <div class="game-card p-10">
-            <div class="mb-8 text-center">
-               <span class="text-rose-400 font-bold tracking-widest uppercase text-xs">Question ${currentStep + 1} of 3</span>
-               <h2 class="text-2xl font-bold text-gray-800 mt-2">${data.question}</h2>
+        app.innerHTML = `
+          <div class="game-card p-8">
+            <div class="text-center mb-6">
+              <span class="text-rose-400 text-xs font-bold tracking-widest uppercase">Round ${state.step + 1}/5</span>
+              <h2 class="text-2xl font-bold text-gray-800 mt-2">${currentQ.q}</h2>
             </div>
-            <div class="flex flex-col">
-              ${data.options.map((option, index) => `
-                <button onclick="handleChoice(${index})" class="choice-button">
-                  ${option}
-                </button>
+            <div class="space-y-3">
+              ${currentQ.o.map((opt, i) => `
+                <button onclick="choose(${i})" class="choice-button">${opt}</button>
               `).join('')}
             </div>
           </div>
@@ -169,11 +139,28 @@
       }
     }
 
-    function startGame() { gameStarted = true; render(); }
-    function handleChoice(index) { selectedReply = gameData[currentStep].replies[index]; showingResult = true; render(); }
-    function nextQuestion() { showingResult = false; currentStep++; render(); }
-    function restartGame() { currentStep = 0; showingResult = false; gameStarted = false; render(); }
+    function startGame() { state.started = true; render(); }
+    function choose(i) { state.currentResult = state.questions[state.step].r[i]; render(); }
+    function next() { state.step++; state.currentResult = null; render(); }
+    function reset() { setupGame(); render(); }
 
+    // Floating Hearts Logic
+    function createHearts() {
+      const container = document.getElementById('hearts-container');
+      const emojis = ['💖', '🌹', '✨', '🌸', '💘'];
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.className = 'heart';
+        heart.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        container.appendChild(heart);
+        setTimeout(() => heart.remove(), 6000);
+      }, 500);
+    }
+
+    createHearts();
+    setupGame();
     render();
   </script>
 </body>
