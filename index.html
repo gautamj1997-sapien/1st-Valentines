@@ -3,125 +3,173 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hi Lachu 💖 - Valentine's Game</title>
+  <title>A Special Game for Lachu 💖</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    .card { background: white; border-radius: 1.5rem; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); }
-    .gradient-text { background: linear-gradient(135deg, #ec4899, #f43f5e); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .spin { animation: spin 2s linear infinite; }
+    body {
+      background-color: #fff1f2;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    .game-card {
+      background: white;
+      border-radius: 2rem;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      border: 4px solid #fecdd3;
+    }
+    .btn-pink {
+      background: linear-gradient(to right, #fb7185, #f43f5e);
+      color: white;
+      transition: transform 0.2s;
+    }
+    .btn-pink:hover {
+      transform: scale(1.05);
+      background: linear-gradient(to right, #f43f5e, #e11d48);
+    }
+    .choice-button {
+      background: #fff1f2;
+      border: 2px solid #fda4af;
+      color: #9f1239;
+      width: 100%;
+      padding: 15px;
+      border-radius: 1rem;
+      font-weight: bold;
+      margin-bottom: 10px;
+      transition: all 0.2s;
+    }
+    .choice-button:hover {
+      background: #ffe4e6;
+      border-color: #fb7185;
+    }
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
   </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-rose-100 via-pink-50 to-rose-100 p-4">
-  <div id="app" class="max-w-sm w-full"></div>
-  
+<body class="min-h-screen flex items-center justify-center p-4">
+
+  <div id="game-container" class="max-w-md w-full">
+    </div>
+
   <script>
-    const prompts = [
-      { question: "Lachu walks into the room… what's your move?", 
+    // These are the questions in your game
+    const gameData = [
+      {
+        question: "Lachu walks into the room… what's your move?",
         options: ["Smile like I've been waiting", "Act normal (fail immediately)", "Go say hi"],
-        results: ["Good. Because I have been waiting. Don't make it obvious though 😌", "That was the most obvious 'act normal' I've ever seen. Cute attempt.", "Straight to me? Hmm… confident. I like that."] },
-      { question: "Our ideal plan together is…", 
-        options: ["Chai, talking about everything and nothing", "A random walk with no destination", "Laughing at absolutely nothing"],
-        results: ["Perfect. Time slows down when it's just us and chai ☕", "Getting lost with you sounds like a very good plan.", "That's already our specialty, isn't it?"] },
-      { question: "If Lachu steals your food?", 
-        options: ["Let her take it", "Pretend to protest", "Order more for both"],
-        results: ["Correct answer. Sharing is caring… especially with me.", "You can complain, but we both know you're giving it anyway.", "Oh? Taking care of me now? This is getting dangerously sweet."] }
+        replies: ["Good. Because I have been waiting. 😌", "That was a cute attempt at being normal!", "Straight to me? I like the confidence!"]
+      },
+      {
+        question: "Our ideal plan together is…",
+        options: ["Chai and talking", "A long walk", "Laughing at nothing"],
+        replies: ["Time slows down when we have chai. ☕", "Getting lost with you is a great plan.", "We are already experts at laughing!"]
+      },
+      {
+        question: "If Lachu steals your food?",
+        options: ["Let her take it", "Pretend to be mad", "Order more for her"],
+        replies: ["Correct! Sharing is caring. 🍕", "You're only pretending, we both know it!", "So sweet! Taking care of me."]
+      }
     ];
 
-    let state = {step: 0, result: null, started: false};
+    let currentStep = 0;
+    let showingResult = false;
+    let selectedReply = "";
+    let gameStarted = false;
 
     function render() {
-      document.getElementById('app').innerHTML = `
-        ${!state.started ? `
-          <div class="card p-10 text-center">
-            <h1 class="text-4xl font-bold gradient-text mb-6">Hi Lachu 💌</h1>
-            <p class="text-lg text-gray-700 mb-8 leading-relaxed">Tiny game. 60 seconds.<br>Side effects: smiling 😊</p>
-            <button onclick="startGame()" class="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white py-5 px-6 rounded-2xl text-xl font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
+      const container = document.getElementById('game-container');
+      
+      // Screen 1: The Start Screen
+      if (!gameStarted) {
+        container.innerHTML = `
+          <div class="game-card p-8 text-center">
+            <h1 class="text-4xl font-bold text-rose-600 mb-4 floating">Hi Lachu! 💌</h1>
+            <p class="text-gray-600 mb-8 text-lg">I made a tiny game just for you. It only takes 60 seconds!</p>
+            <button onclick="startGame()" class="btn-pink w-full py-4 rounded-2xl text-xl font-bold shadow-lg">
               Start Our "Date" ✨
             </button>
           </div>
-        ` : state.step === 3 ? `
-          <div class="card p-12 text-center">
-            <h2 class="text-4xl font-bold gradient-text mb-8">So Lachu… ❤️</h2>
-            <p class="text-xl text-gray-700 mb-10 leading-relaxed">That didn't feel like a game.<br><strong>It felt like spending time with you.</strong></p>
-            <div class="w-28 h-28 mx-auto mb-8 bg-gradient-to-r from-rose-400 to-pink-400 rounded-full flex items-center justify-center shadow-2xl spin">
-              💖
-            </div>
-            <button onclick="restartGame()" class="w-full border-4 border-rose-200 hover:border-rose-400 text-rose-600 hover:bg-rose-50 py-5 px-6 rounded-2xl text-xl font-bold transition-all duration-300 hover:scale-105">
+        `;
+        return;
+      }
+
+      // Screen 2: The End Screen
+      if (currentStep >= gameData.length) {
+        container.innerHTML = `
+          <div class="game-card p-10 text-center">
+            <h2 class="text-3xl font-bold text-rose-600 mb-6">So Lachu... ❤️</h2>
+            <p class="text-xl text-gray-700 mb-8 italic">"That didn't feel like a game. It felt like spending time with you."</p>
+            <div class="text-6xl mb-8 floating">💖</div>
+            <button onclick="restartGame()" class="text-rose-500 font-bold hover:underline">
               Play Again? 💕
             </button>
           </div>
-        ` : `
-          <div class="card p-10">
-            <h2 class="text-2xl font-bold text-gray-800 mb-10 text-center">${prompts[state.step].question}</h2>
-            ${!state.result ? `
-              <div class="space-y-4">
-                ${prompts[state.step].options.map((opt,i)=>`
-                  <button onclick="selectChoice(${i})" class="choice-btn">
-                    ${opt}
-                  </button>
-                `).join('')}
-              </div>
-            ` : `
-              <div class="text-center space-y-8">
-                <div class="result-box">
-                  <p class="text-2xl text-gray-800 font-semibold">${state.result}</p>
-                </div>
-                <button onclick="nextStep()" class="w-full bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white py-5 px-6 rounded-2xl text-xl font-bold shadow-xl hover:shadow-2xl transform hover:-translate-y-2 transition-all duration-300">
-                  Continue → ✨
-                </button>
-              </div>
-            `}
+        `;
+        return;
+      }
+
+      // Screen 3: Question or Result
+      const data = gameData[currentStep];
+      
+      if (showingResult) {
+        // Show the answer to the choice
+        container.innerHTML = `
+          <div class="game-card p-8 text-center">
+            <div class="bg-rose-50 p-6 rounded-2xl mb-6">
+              <p class="text-2xl text-rose-800 font-medium">"${selectedReply}"</p>
+            </div>
+            <button onclick="nextQuestion()" class="btn-pink w-full py-4 rounded-2xl text-xl font-bold shadow-lg">
+              Continue →
+            </button>
           </div>
-        `}
-      `;
+        `;
+      } else {
+        // Show the question and buttons
+        container.innerHTML = `
+          <div class="game-card p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-8 text-center">${data.question}</h2>
+            <div class="flex flex-col">
+              ${data.options.map((option, index) => `
+                <button onclick="handleChoice(${index})" class="choice-button">
+                  ${option}
+                </button>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
     }
 
+    // These functions change the "State" and then call render() to update the screen
     function startGame() {
-      state.started = true;
-      setTimeout(() => fadeIn(), 200);
+      gameStarted = true;
+      render();
     }
 
-    function selectChoice(i) {
-      state.result = prompts[state.step].results[i];
-      playSound();
-      setTimeout(() => fadeIn(), 150);
+    function handleChoice(index) {
+      selectedReply = gameData[currentStep].replies[index];
+      showingResult = true;
+      render();
     }
 
-    function nextStep() {
-      state.result = null;
-      state.step++;
-      setTimeout(() => fadeIn(), 200);
+    function nextQuestion() {
+      showingResult = false;
+      currentStep++;
+      render();
     }
 
     function restartGame() {
-      state = {step: 0, result: null, started: false};
-      setTimeout(() => fadeIn(), 200);
+      currentStep = 0;
+      showingResult = false;
+      gameStarted = false;
+      render();
     }
 
-    function fadeIn() {
-      document.querySelectorAll('*').forEach(el => {
-        el.style.opacity = '0';
-        el.style.transform = 'scale(0.95)';
-      });
-      setTimeout(() => {
-        document.querySelectorAll('*').forEach(el => {
-          el.style.transition = 'all 0.3s ease';
-          el.style.opacity = '1';
-          el.style.transform = 'scale(1)';
-        });
-      }, 50);
-    }
-
-    function playSound() {
-      try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAo');
-        audio.volume = 0.3;
-        audio.play();
-      } catch(e) {}
-    }
-
+    // Run the game for the first time!
     render();
   </script>
 </body>
